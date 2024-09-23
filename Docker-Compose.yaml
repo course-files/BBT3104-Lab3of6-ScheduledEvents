@@ -10,9 +10,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 5trathm0re
     volumes:
-      # To store the configuration file
+      # To store the server's configuration file in the host
       - ./container-volumes/mysql/etc-mysql/my.cnf:/etc/mysql/my.cnf
-      # To store the data persistently
+      # To store the server's data persistently in the host
       - ./container-volumes/mysql/var-lib-mysql:/var/lib/mysql
       # To run the SQL scripts used to create the required databases
       - ./container-volumes/mysql/init-scripts:/docker-entrypoint-initdb.d/
@@ -21,7 +21,22 @@ services:
       chmod 644 /etc/mysql/my.cnf &&
       docker-entrypoint.sh mysqld
       "
-  
+
+  mariadb:
+    image: mariadb:11.5.2
+    hostname: mariadb-bbt3104-lab3
+    container_name: mariadb-bbt3104-lab3
+    restart: always
+    ports:
+      - 3308:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: 5trathm0re
+    volumes:
+      # To store the server's configuration file in the host
+      - ./container-volumes/mariadb/etc-mysql/my.cnf:/etc/mysql/my.cnf
+      # To store the server's data persistently in the host
+      - ./container-volumes/mariadb/var-lib-mysql:/var/lib/mysql
+
   postgres:
     image: postgres:16.2
     hostname: postgres-bbt3104-lab3
@@ -35,31 +50,16 @@ services:
       POSTGRES_PASSWORD: 5trathm0re
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./container-volumes/postgresql/var-lib-postgresql-data:/var/lib/postgresql/data
+      # To store the server's configuration files (postgresql.conf and pg_hba.conf) in the host
       - ./container-volumes/postgresql/etc-postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./container-volumes/postgresql/etc-postgresql/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      # To store the server's data persistently in the host
+      - ./container-volumes/postgresql/var-lib-postgresql-data:/var/lib/postgresql/data
     command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
 
-
-  mariadb:
-    image: mariadb:11.5.2
-    hostname: mariadb-bbt3104-lab3
-    container_name: mariadb-bbt3104-lab3
-    restart: always
-    ports:
-      - 3308:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: 5trathm0re
-      MYSQL_DATABASE: mydatabase         # Default database to create
-      MYSQL_USER: student                 # Custom user to create
-      MYSQL_PASSWORD: 5trathmore
-    volumes:
-      - ./container-volumes/mariadb/var-lib-mysql:/var/lib/mysql
-      - ./container-volumes/mariadb/etc-mysql/my.cnf:/etc/mysql/my.cnf
-    command: mysqld --defaults-file=/etc/mysql/my.cnf
-
     # Reminder: Open the ports in the firewall if you are using a Linux host, i.e.,
-    # execute the following in VS Code terminal:
+    # execute the following in VS Code Bash terminal:
+    # sudo ufw allow 3307/tcp
     # sudo ufw allow 5432/tcp
     # sudo ufw allow 3308/tcp
 
@@ -74,11 +74,14 @@ services:
       - MYSQL_ROOT_PASSWORD=5trathm0re
       - MYSQL_USER=student
       - MYSQL_PASSWORD=5trathm0re
-      - PMA_HOST=mysql-8.3.0-bbt3104
+      - PMA_HOST=mysql-8.3.0-bbt3104-lab3
       - PMA_PORT=3306
       - PMA_USER=root
       - PMA_PASSWORD=5trathm0re
     volumes:
       - ./container-volumes/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
-    depends_on:
-      - mysql
+    command: >
+      /bin/bash -c "
+      chmod 644 /etc/mysql/my.cnf &&
+      docker-entrypoint.sh mysqld
+      "
