@@ -19,13 +19,13 @@ services:
     command: >
       /bin/bash -c "
       chmod 644 /etc/mysql/my.cnf &&
-      docker-entrypoint.sh mysqld
+      exec docker-entrypoint.sh mysqld
       "
 
   mariadb:
     image: mariadb:11.5.2
-    hostname: mariadb-bbt3104-lab3
-    container_name: mariadb-bbt3104-lab3
+    hostname: mariadb-11.5.2-bbt3104-lab3
+    container_name: mariadb-11.5.2-bbt3104-lab3
     restart: always
     ports:
       - 3308:3306
@@ -36,11 +36,16 @@ services:
       - ./container-volumes/mariadb/etc-mysql/my.cnf:/etc/mysql/my.cnf
       # To store the server's data persistently in the host
       - ./container-volumes/mariadb/var-lib-mysql:/var/lib/mysql
+    command: >
+      /bin/bash -c "
+      chmod 644 /etc/mysql/my.cnf &&
+      exec docker-entrypoint.sh mariadbd
+      "
 
   postgres:
     image: postgres:16.2
-    hostname: postgres-bbt3104-lab3
-    container_name: postgres-bbt3104-lab3
+    hostname: postgres-16.2-bbt3104-lab3
+    container_name: postgres-16.2-bbt3104-lab3
     restart: always
     shm_size: 1g
     ports:
