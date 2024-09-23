@@ -1,3 +1,1 @@
--- CREATE TRG_AFTER_UPDATE_ON_customers
-
--- UPDATE part
+-- CREATE EVN_average_customer_waiting_time_every_1_hour
